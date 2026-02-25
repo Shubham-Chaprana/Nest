@@ -125,3 +125,17 @@ def api_root(request):
 
 for prefix, router in ROUTERS.items():
     api.add_router(prefix, router)
+# Ensure all OpenAPI operationIds are unique to prevent client SDK conflicts.
+schema = api.get_openapi_schema()
+operation_ids = []
+
+for path in schema.get("paths", {}).values():
+    for method in path.values():
+        if "operationId" in method:
+            operation_ids.append(method["operationId"])
+
+duplicates = {op for op in operation_ids if operation_ids.count(op) > 1}
+if duplicates:
+    raise RuntimeError(
+        f"Duplicate OpenAPI operationId(s) detected in API v0: {sorted(duplicates)}"
+    )
