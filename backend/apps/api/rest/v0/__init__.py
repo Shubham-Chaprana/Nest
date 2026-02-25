@@ -9,6 +9,13 @@ from ninja.pagination import RouterPaginated
 from ninja.throttling import AuthRateThrottle
 
 from apps.api.rest.auth.api_key import ApiKey
+# ApiKey class name is part of the public API v0 contract (SDK generation relies on it).
+# To Ensure API v0 auth contract is preserved to prevent client SDK breakage.
+if ApiKey.__name__ != "ApiKey":
+    raise RuntimeError(
+        "API v0 auth contract violation: authentication class must be named 'ApiKey' "
+        "to preserve client SDK compatibility."
+    )
 from apps.api.rest.v0.chapter import router as chapter_router
 from apps.api.rest.v0.committee import router as committee_router
 from apps.api.rest.v0.event import router as event_router
